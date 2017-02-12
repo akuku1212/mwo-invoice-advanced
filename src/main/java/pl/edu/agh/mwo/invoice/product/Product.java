@@ -11,7 +11,13 @@ public abstract class Product {
 
 	protected Product(String name, BigDecimal price, BigDecimal tax) {
 		this.name = name;
+		if (name == null || name == ""){
+			throw new IllegalArgumentException("Product without name");
+		}
 		this.price = price;
+		if (price == null || price.signum() <0 ){
+			throw new IllegalArgumentException("Product without name");
+		}
 		this.taxPercent = tax;
 	}
 
@@ -24,7 +30,7 @@ public abstract class Product {
 	}
 
 	public BigDecimal getTaxPercent() {
-		return taxPercent;
+		return this.taxPercent;
 	}
 
 	public BigDecimal getPriceWithTax() {
