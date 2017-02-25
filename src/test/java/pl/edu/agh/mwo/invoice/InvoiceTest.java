@@ -4,8 +4,11 @@ import static org.junit.Assert.assertEquals;
 
 import java.math.BigDecimal;
 
+import org.hamcrest.Matchers;
+import org.junit.Before;
 import org.junit.Test;
 
+import junit.framework.Assert;
 import pl.edu.agh.mwo.invoice.Invoice;
 import pl.edu.agh.mwo.invoice.product.DairyProduct;
 import pl.edu.agh.mwo.invoice.product.OtherProduct;
@@ -16,6 +19,11 @@ public class InvoiceTest {
 	private static final String PRODUCT_1 = "Product 1";
 	private static final String PRODUCT_2 = "Product 2";
 	private static final String PRODUCT_3 = "Product 3";
+	
+	@Before
+	public void resetNextNumber(){
+		Invoice.resetNextNumber();
+	}
 
 	@Test
 	public void testEmptyInvoiceHasEmptySubtotal() {
@@ -98,6 +106,50 @@ public class InvoiceTest {
 		Invoice invoice = createEmptyInvoice();
 		invoice.addProduct(createTaxFreeProduct(), -1);
 	}
+	@Test
+	public void testInvoiceHasNumberGreaterThanZero(){
+		Invoice invoice = createEmptyInvoice();
+		org.junit.Assert.assertThat(invoice.getNumber(), Matchers.greaterThan(0));
+		
+	}
+	@Test
+	public void ManyInvoicesHaveDifferentNumbers(){
+		Invoice invoice = createEmptyInvoice();
+		Invoice invoice2 = createEmptyInvoice();
+		org.junit.Assert.assertNotEquals(invoice.getNumber(),invoice2.getNumber());
+	}
+	@Test
+	public void ManyInvoicesHaveSubsequentNumbers(){
+		Invoice invoice = createEmptyInvoice();
+		Invoice invoice2 = createEmptyInvoice();
+		org.junit.Assert.assertEquals(1,invoice.getNumber(),invoice2.getNumber());
+	}
+	@Test
+	public void testPrintedInvoiceHasNumber(){
+		Invoice invoice = createEmptyInvoice();
+		String printed = invoice.printedVersion();
+		String invoiceNumber = String.valueOf(invoice.getNumber());
+		org.junit.Assert.assertThat(printed, Matchers.containsString(invoiceNumber));
+	}
+	@Test
+	public void testPrintedProductName(){
+		Invoice invoice = createEmptyInvoice();
+		Product product = new DairyProduct("mleko", new BigDecimal(999));
+		invoice.addProduct(product);
+		String printed = invoice.printedVersion();
+		org.junit.Assert.assertThat(printed, Matchers.containsString("mleko"));
+	}
+	
+	@Test
+	public void testPrintedProductQuantity(){
+		Invoice invoice = createEmptyInvoice();
+		Product product = new DairyProduct("mleko", new BigDecimal(999));
+		invoice.addProduct(product, 50);
+		String printed = invoice.printedVersion();
+		org.junit.Assert.assertThat(printed, Matchers.containsString("50"));
+	}
+	
+	
 
 	private Invoice createEmptyInvoice() {
 		return new Invoice();
